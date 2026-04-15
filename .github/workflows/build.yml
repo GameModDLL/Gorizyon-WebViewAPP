@@ -1,0 +1,33 @@
+name: WebView Builder
+on:
+  repository_dispatch:
+    types: [build_apk]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu Çek
+        uses: actions/checkout@v3
+
+      - name: Java Kurulumu
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Uygulama Bilgilerini Güncelle
+        run: |
+          # PHP'den gelen verileri Android projesine yazıyoruz
+          sed -i "s|APP_URL_PLACEHOLDER|${{ github.event.client_payload.url }}|g" app/src/main/java/com/example/webview/MainActivity.java
+          sed -i "s|APP_NAME_PLACEHOLDER|${{ github.event.client_payload.name }}|g" app/src/main/res/values/strings.xml
+
+      - name: APK Derle
+        run: ./gradlew assembleRelease
+
+      - name: APK'yı Kaydet (Artifact)
+        uses: actions/upload-artifact@v3
+        with:
+          name: webview-app
+          path: app/build/outputs/apk/release/*.apk
+          
