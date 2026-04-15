@@ -398,7 +398,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Configure WebView settings
         WebSettings webSettings = SWVContext.asw_view.getSettings();
+webSettings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+    
+    webSettings.setUseWideViewPort(true);       // Sayfanın genişliğini cihazınkine uydurur
+    webSettings.setLoadWithOverviewMode(true);  // Sayfayı ekrana sığacak şekilde küçültür
+    webSettings.setSupportZoom(false);          // Yanlışlıkla zoom yapmayı engeller (opsiyonel)
+    webSettings.setBuiltInZoomControls(false);  // Zoom butonlarını gizler
+    // ----------------------------
 
+    webSettings.setJavaScriptEnabled(true);
         // Configure user agent
         if (SWVContext.OVERRIDE_USER_AGENT || SWVContext.POSTFIX_USER_AGENT) {
             String userAgent = webSettings.getUserAgentString();
