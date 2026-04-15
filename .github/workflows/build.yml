@@ -22,10 +22,7 @@ jobs:
 
       - name: Uygulama Bilgilerini Güncelle (Placeholder Değişimi)
         run: |
-          # SWVContext.java içindeki URL'yi değiştir
           sed -i "s|APP_URL_PLACEHOLDER|${{ github.event.client_payload.url }}|g" app/src/main/java/mgks/os/swv/SWVContext.java
-          
-          # strings.xml içindeki uygulama adını değiştir
           sed -i "s|APP_NAME_PLACEHOLDER|${{ github.event.client_payload.name }}|g" app/src/main/res/values/strings.xml
 
       - name: APK Derleme (Build)
