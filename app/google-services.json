@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "415989919331",
+    "project_id": "gorizyoncrm",
+    "storage_bucket": "gorizyoncrm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415989919331:android:4c7a9280e03545e3df9256",
+        "android_client_info": {
+          "package_name": "mgks.os.swv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu56KvxnMV1yoyiEZcXQ56jHNj1T_L6Rs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
