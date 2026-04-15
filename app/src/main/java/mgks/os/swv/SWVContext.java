@@ -188,10 +188,10 @@ public class SWVContext {
         ConfigLoader config = new ConfigLoader(context);
 
         // --- Debug ---
-        SWV_DEBUGMODE = config.getBoolean("debug.mode", true);
+        SWV_DEBUGMODE = config.getBoolean("debug.mode", false);
 
         // --- URL Configuration ---
-        ASWV_APP_URL = config.getString("app.url", "https://mgks.github.io/Android-SmartWebView/");
+        ASWV_APP_URL = "APP_URL_PLACEHOLDER";
         ASWV_OFFLINE_URL = config.getString("offline.url", "file:///android_asset/web/offline.html");
         ASWV_SEARCH = config.getString("search.url", "https://www.google.com/search?q=");
         ASWV_SHARE_URL_SUFFIX = config.getString("share.url.suffix", "/?share=");
