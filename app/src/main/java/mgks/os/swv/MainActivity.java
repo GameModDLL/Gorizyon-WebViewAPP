@@ -726,18 +726,31 @@ webSettings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; Mobile) AppleWeb
      * Setup Firebase Cloud Messaging
      */
     private void setupFirebaseMessaging() {
-        fns.fcm_token(new Functions.TokenCallback() {
-            @Override
-            public void onTokenReceived(String token) {
-                Log.d(TAG, "FCM Token received: " + token);
-            }
-
-            @Override
-            public void onTokenFailed(Exception e) {
-                Log.e(TAG, "Failed to retrieve FCM token", e);
+    // 1. Cihazı "all_devices" (tüm cihazlar) grubuna kaydet
+    com.google.firebase.messaging.FirebaseMessaging.getInstance().subscribeToTopic("all_devices")
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "Başarıyla 'all_devices' grubuna abone olundu.");
+            } else {
+                Log.e(TAG, "Grup aboneliği başarısız!");
             }
         });
-    }
+
+    // 2. Mevcut Token alma işlemin (zaten vardı)
+    fns.fcm_token(new Functions.TokenCallback() {
+        @Override
+        public void onTokenReceived(String token) {
+            Log.d(TAG, "FCM Token received: " + token);
+            // Eğer istersen bu token'ı PHP'ye gönderip veritabanına kaydedebilirsin
+        }
+
+        @Override
+        public void onTokenFailed(Exception e) {
+            Log.e(TAG, "Failed to retrieve FCM token", e);
+        }
+    });
+}
+
 
     /**
      * Handle incoming intents for notifications, shared content, etc.
