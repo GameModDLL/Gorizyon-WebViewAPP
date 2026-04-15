@@ -7,27 +7,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Kodu Çek
+      - name: Kodu GitHub'dan Çek
         uses: actions/checkout@v3
 
-      - name: Java Kurulumu
+      - name: Java JDK 17 Kurulumu
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Uygulama Bilgilerini Güncelle
+      - name: Gradelw Yetkisini Düzenle
+        run: chmod +x gradlew
+
+      - name: Uygulama Bilgilerini Güncelle (Placeholder Değişimi)
         run: |
-          # PHP'den gelen verileri Android projesine yazıyoruz
-          sed -i "s|APP_URL_PLACEHOLDER|${{ github.event.client_payload.url }}|g" app/src/main/java/com/example/webview/MainActivity.java
+          # SWVContext.java içindeki URL'yi değiştir
+          sed -i "s|APP_URL_PLACEHOLDER|${{ github.event.client_payload.url }}|g" app/src/main/java/mgks/os/swv/SWVContext.java
+          
+          # strings.xml içindeki uygulama adını değiştir
           sed -i "s|APP_NAME_PLACEHOLDER|${{ github.event.client_payload.name }}|g" app/src/main/res/values/strings.xml
 
-      - name: APK Derle
-        run: ./gradlew assembleRelease
+      - name: APK Derleme (Build)
+        run: ./gradlew assembleDebug
 
-      - name: APK'yı Kaydet (Artifact)
+      - name: APK Dosyasını Kaydet (Artifact)
         uses: actions/upload-artifact@v3
         with:
-          name: webview-app
-          path: app/build/outputs/apk/release/*.apk
-          
+          name: ${{ github.event.client_payload.name }}-WebView-App
+          path: app/build/outputs/apk/debug/*.apk
