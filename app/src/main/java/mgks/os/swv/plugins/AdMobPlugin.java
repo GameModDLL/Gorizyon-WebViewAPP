@@ -1,4 +1,4 @@
-8package mgks.os.swv.plugins;
+package mgks.os.swv.plugins;
 
 /*
   AdMob Plugin for Smart WebView
