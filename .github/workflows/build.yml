@@ -1,8 +1,8 @@
-name: Gorizyon Builder Engine
+name: Gorizyon Builder Engine v8
 
 on:
   repository_dispatch:
-    types: [aswv_build] # PHP'deki event_type ile birebir aynı olmalı
+    types: [aswv_build]
 
 jobs:
   build:
@@ -19,42 +19,59 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Grant Execute Permission for Gradlew
+      - name: Grant Execute Permission
         run: chmod +x gradlew
 
-      - name: Patch Config.java
+      - name: Patch swv.properties
         shell: python
         run: |
           import os
           import json
           import re
 
-          # PHP'den gelen client_payload verisini al
           payload = """${{ toJson(github.event.client_payload) }}"""
           data = json.loads(payload)
           
-          config_path = 'app/src/main/java/com/mg/smartwebview/Config.java' # Dokümantasyondaki orijinal yol
+          # PROPERTIES DOSYASINI BUL
+          target = "swv.properties"
+          found_path = None
+          for root, dirs, files in os.walk("."):
+              if target in files:
+                  found_path = os.path.join(root, target)
+                  break
           
-          with open(config_path, 'r') as f:
-              content = f.read()
+          if not found_path:
+              print("HATA: swv.properties bulunamadı!")
+              exit(1)
 
-          # 1. URL Güncelleme
-          content = re.sub(r'ASWV_URL\s*=\s*".*";', f'ASWV_URL = "{data["app_url"]}";', content)
+          print(f"Hedef dosya: {found_path}")
+
+          with open(found_path, 'r', encoding='utf-8') as f:
+              lines = f.readlines()
+
+          new_lines = []
+          for line in lines:
+              # 1. URL Güncelleme (app.url=...)
+              if line.startswith("app.url="):
+                  line = f"app.url={data['app_url']}\n"
+              
+              # 2. Özellikleri Güncelle (feature.xxx=...)
+              # Panelden gelen config anahtarlarını (örn: feature.uploads) kontrol eder
+              if "config" in data:
+                  for key, value in data["config"].items():
+                      # Panelden 'feature.uploads' gelirse, dosyada o satırı bulup değiştirir
+                      if line.startswith(f"{key}="):
+                          val_str = "true" if value else "false"
+                          line = f"{key}={val_str}\n"
+              
+              new_lines.append(line)
+
+          with open(found_path, 'w', encoding='utf-8') as f:
+              f.writelines(new_lines)
           
-          # 2. Dinamik Modülleri Güncelle (Config.java içindeki boolean değerleri)
-          if "config" in data:
-              for key, value in data["config"].items():
-                  # Örn: public static boolean ASWV_F_UPLOADS = false; -> true;
-                  pattern = rf'(public static boolean {key}\s*=\s*)(true|false);'
-                  replacement = rf'\1{"true" if value else "false"};'
-                  content = re.sub(pattern, replacement, content)
+          print("Gorizyon v8 Konfigürasyonu Başarıyla Güncellendi.")
 
-          with open(config_path, 'w') as f:
-              f.write(content)
-          
-          print("Config.java başarıyla Gorizyon Builder tarafından yamalandı.")
-
-      - name: Build with Gradle
+      - name: Build Release APK
         run: ./gradlew assembleRelease
 
       - name: Upload APK to Server
