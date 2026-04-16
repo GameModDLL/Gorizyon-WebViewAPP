@@ -35,9 +35,15 @@ jobs:
 
       - name: APK Dosyasını Sunucuya Geri Gönder
         run: |
-          # build_id'yi de alarak sunucuna post eder
-          find app/build/outputs/apk/debug/ -name "*.apk" -exec curl -X POST \
-          -F "file=@{}" \
-          -F "build_id=${{ github.event.client_payload.app_id }}" \
-          "https://gorizyon.com.tr/builder/callback.php?token=GORIZYON_SECURE_5522" \;
+          # APK'yı bul ve tam yolunu al
+          APK_PATH=$(find app/build/outputs/apk/debug/ -name "*.apk" | head -n 1)
           
+          # Dosya adını sadece log için yazdıralım
+          echo "Bulunan APK: $APK_PATH"
+          
+          # Curl ile gönderim (İsimleri senin PHP ile eşledim)
+          curl -v -X POST \
+          -H "Expect:" \
+          -F "file=@$APK_PATH" \
+          -F "build_id=${{ github.event.client_payload.app_id }}" \
+          "https://gorizyon.com.tr/builder/callback.php?token=123"
