@@ -89,7 +89,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="https"
-					android:host="mgks.github.io"
+					android:host="gorizyon.com.tr"
 					android:pathPrefix="/Android-SmartWebView" />
 			</intent-filter>
 			<intent-filter android:label="OpenURI">
