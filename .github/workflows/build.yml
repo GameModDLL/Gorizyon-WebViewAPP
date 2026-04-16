@@ -1,35 +1,65 @@
-name: WebView Builder
+name: Gorizyon Builder Engine
+
 on:
   repository_dispatch:
-    types: [build_apk]
+    types: [aswv_build] # PHP'deki event_type ile birebir aynı olmalı
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Kodu GitHub'dan Çek
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Java JDK 17 Kurulumu
-        uses: actions/setup-java@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+          cache: 'gradle'
 
-      - name: Gradelw Yetkisini Düzenle
+      - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
-      - name: Uygulama Bilgilerini Güncelle (Placeholder Değişimi)
+      - name: Patch Config.java
+        shell: python
         run: |
-          sed -i "s|APP_URL_PLACEHOLDER|${{ github.event.client_payload.url }}|g" app/src/main/java/mgks/os/swv/SWVContext.java
-          sed -i "s|APP_NAME_PLACEHOLDER|${{ github.event.client_payload.name }}|g" app/src/main/res/values/strings.xml
+          import os
+          import json
+          import re
 
-      - name: APK Derleme (Build)
-        run: ./gradlew assembleDebug
+          # PHP'den gelen client_payload verisini al
+          payload = """${{ toJson(github.event.client_payload) }}"""
+          data = json.loads(payload)
+          
+          config_path = 'app/src/main/java/com/mg/smartwebview/Config.java' # Dokümantasyondaki orijinal yol
+          
+          with open(config_path, 'r') as f:
+              content = f.read()
 
-      - name: APK Dosyasını Kaydet (Artifact)
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.client_payload.name }}-WebView-App
-          path: app/build/outputs/apk/debug/*.apk
+          # 1. URL Güncelleme
+          content = re.sub(r'ASWV_URL\s*=\s*".*";', f'ASWV_URL = "{data["app_url"]}";', content)
+          
+          # 2. Dinamik Modülleri Güncelle (Config.java içindeki boolean değerleri)
+          if "config" in data:
+              for key, value in data["config"].items():
+                  # Örn: public static boolean ASWV_F_UPLOADS = false; -> true;
+                  pattern = rf'(public static boolean {key}\s*=\s*)(true|false);'
+                  replacement = rf'\1{"true" if value else "false"};'
+                  content = re.sub(pattern, replacement, content)
+
+          with open(config_path, 'w') as f:
+              f.write(content)
+          
+          print("Config.java başarıyla Gorizyon Builder tarafından yamalandı.")
+
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK to Server
+        run: |
+          curl -X POST \
+          -F "file=@app/build/outputs/apk/release/app-release.apk" \
+          -F "build_id=${{ github.event.client_payload.app_id }}" \
+          "https://gorizyon.com.tr/builder/callback.php?token=${{ secrets.CALLBACK_TOKEN }}"
