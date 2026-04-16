@@ -39,5 +39,5 @@ jobs:
           find app/build/outputs/apk/debug/ -name "*.apk" -exec curl -X POST \
           -F "file=@{}" \
           -F "build_id=${{ github.event.client_payload.app_id }}" \
-          "https://gorizyon.com.tr/builder/callback.php?token=${{ secrets.CALLBACK_TOKEN }}" \;
+          "https://gorizyon.com.tr/builder/callback.php?token=GORIZYON_SECURE_5522" \;
           
