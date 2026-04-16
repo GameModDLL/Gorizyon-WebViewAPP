@@ -1,4 +1,4 @@
-package mgks.os.swv.plugins;
+8package mgks.os.swv.plugins;
 
 /*
   AdMob Plugin for Smart WebView
@@ -84,10 +84,10 @@ public class AdMobPlugin implements PluginInterface {
         Map<String, Object> config = new HashMap<>();
 
         // Default configuration
-        config.put("testMode", true);  // Use test ads for development
-        config.put("bannerAdUnitId", "ca-app-pub-3940256099942544/6300978111");  // Test Banner Ad Unit ID
-        config.put("interstitialAdUnitId", "ca-app-pub-3940256099942544/1033173712");  // Test Interstitial Ad Unit ID
-        config.put("rewardedAdUnitId", "ca-app-pub-3940256099942544/5224354917");  // Test Rewarded Ad Unit ID
+        config.put("testMode", false);  // Use test ads for development
+        config.put("bannerAdUnitId", "ca-app-pub-1626535161187974/7775657663");  // Test Banner Ad Unit ID
+        config.put("interstitialAdUnitId", "ca-app-pub-1626535161187974/2341487252");  // Test Interstitial Ad Unit ID
+        config.put("rewardedAdUnitId", "ca-app-pub-1626535161187974/6280732262");  // Test Rewarded Ad Unit ID
         config.put("enableJsInterface", true);  // Enable JavaScript interface for calling from web
         config.put("autoLoadInterstitial", true);  // Auto-load interstitial after showing
         config.put("autoLoadRewarded", true);  // Auto-load rewarded after showing
