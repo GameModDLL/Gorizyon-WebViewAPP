@@ -1,8 +1,7 @@
-name: Gorizyon Builder Engine v8
+name: Gorizyon Builder v8
 
 on:
   repository_dispatch:
-    # worker.php'den gelen event_type ile birebir eşleşti
     types: [aswv_build]
 
 jobs:
@@ -22,28 +21,23 @@ jobs:
       - name: Gradelw Yetkisini Düzenle
         run: chmod +x gradlew
 
-      - name: swv.properties ve Strings Güncelle
+      - name: swv.properties ve Strings Güncelle (Gelişmiş Arama)
         run: |
-          # PHP'den (worker.php) gelen app_url ve app_name verilerini kullanıyoruz
-          sed -i "s|^app.url=.*|app.url=${{ github.event.client_payload.app_url }}|g" swv.properties
+          # swv.properties dosyasını bul ve içine yaz
+          # find komutu dosyayı nerede olursa olsun bulur ve sed ile değiştirir
+          find . -name "swv.properties" -exec sed -i "s|^app.url=.*|app.url=${{ github.event.client_payload.app_url }}|g" {} +
           
-          # Strings.xml içindeki APP_NAME_PLACEHOLDER'ı değiştirir
-          sed -i "s|APP_NAME_PLACEHOLDER|${{ github.event.client_payload.app_name }}|g" app/src/main/res/values/strings.xml
+          # Strings.xml içindeki APP_NAME_PLACEHOLDER'ı bul ve değiştir
+          find . -name "strings.xml" -exec sed -i "s|APP_NAME_PLACEHOLDER|${{ github.event.client_payload.app_name }}|g" {} +
 
       - name: APK Derleme (Build)
         run: ./gradlew assembleDebug
 
       - name: APK Dosyasını Sunucuya Geri Gönder
         run: |
-          curl -X POST \
-          -F "file=@app/build/outputs/apk/debug/app-debug.apk" \
+          # build_id'yi de alarak sunucuna post eder
+          find app/build/outputs/apk/debug/ -name "*.apk" -exec curl -X POST \
+          -F "file=@{}" \
           -F "build_id=${{ github.event.client_payload.app_id }}" \
-          "https://gorizyon.com.tr/builder/callback.php?token=${{ secrets.CALLBACK_TOKEN }}"
-
-      - name: APK Dosyasını Sunucuya Geri Gönder (Callback)
-        run: |
-          curl -X POST \
-          -F "file=@app/build/outputs/apk/debug/app-debug.apk" \
-          -F "build_id=${{ github.event.client_payload.app_id }}" \
-          "https://gorizyon.com.tr/builder/callback.php?token=${{ secrets.CALLBACK_TOKEN }}"
+          "https://gorizyon.com.tr/builder/callback.php?token=${{ secrets.CALLBACK_TOKEN }}" \;
           
